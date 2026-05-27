@@ -36,10 +36,11 @@ export async function POST(req: NextRequest) {
       user: { username: user.username, isAdmin: user.isAdmin },
     })
 
+    // Set cookie with broad compatibility
     res.cookies.set('veyfy_token', token, {
       httpOnly: false,
-      secure: true,
-      sameSite: 'none',
+      secure: false,
+      sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7,
       path: '/',
     })
