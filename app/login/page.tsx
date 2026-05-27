@@ -80,7 +80,7 @@ export default function LoginPage() {
             Willkommen zurück
           </h2>
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-4" action="#">
             <div>
               <label className="block text-xs font-medium mb-2" style={{ color: 'var(--muted)' }}>BENUTZERNAME</label>
               <input
@@ -124,7 +124,8 @@ export default function LoginPage() {
             )}
 
             <button
-              type="submit"
+              type="button"
+              onClick={() => handleLogin({ preventDefault: () => {} } as any)}
               disabled={loading}
               className="w-full py-3 rounded-xl font-semibold text-sm transition-all mt-2"
               style={{
