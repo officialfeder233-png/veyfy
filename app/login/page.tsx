@@ -1,9 +1,7 @@
 'use client'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
-  const router = useRouter()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -14,46 +12,52 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
 
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    })
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      })
 
-    const data = await res.json()
-    setLoading(false)
+      const data = await res.json()
+      console.log('Response status:', res.status)
+      console.log('Response data:', JSON.stringify(data))
 
-    if (!res.ok) {
-      setError(data.error || 'Fehler beim Login')
-      return
+      if (!res.ok) {
+        setError(data.error || 'Fehler beim Login')
+        setLoading(false)
+        return
+      }
+
+      if (data.token) {
+        localStorage.setItem('veyfy_token', data.token)
+        console.log('Token gespeichert, leite weiter...')
+        window.location.href = '/'
+      } else {
+        console.log('Kein Token in Response!')
+        setError('Kein Token erhalten')
+        setLoading(false)
+      }
+    } catch (err) {
+      console.error('Fetch error:', err)
+      setError('Verbindungsfehler')
+      setLoading(false)
     }
-
-    // Store token in localStorage as backup
-    if (data.token) {
-      localStorage.setItem('veyfy_token', data.token)
-    }
-
-    window.location.href = '/'
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden" style={{ background: 'var(--bg)' }}>
-      {/* Background orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full opacity-20 blur-[120px]"
           style={{ background: 'radial-gradient(circle, #6c63ff 0%, transparent 70%)' }} />
         <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full opacity-15 blur-[100px]"
           style={{ background: 'radial-gradient(circle, #a78bfa 0%, transparent 70%)' }} />
-        <div className="absolute top-[40%] right-[20%] w-[300px] h-[300px] rounded-full opacity-10 blur-[80px]"
-          style={{ background: 'radial-gradient(circle, #6c63ff 0%, transparent 70%)' }} />
       </div>
 
-      {/* Grid lines */}
       <div className="absolute inset-0 opacity-[0.03]"
         style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
 
       <div className="relative z-10 w-full max-w-sm px-6">
-        {/* Logo */}
         <div className="text-center mb-12 fade-up">
           <div className="inline-flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center glow-accent"
@@ -71,7 +75,6 @@ export default function LoginPage() {
           <p className="text-sm" style={{ color: 'var(--muted)' }}>Deine private Musikwelt</p>
         </div>
 
-        {/* Card */}
         <div className="glass rounded-2xl p-8 fade-up" style={{ animationDelay: '0.1s' }}>
           <h2 className="text-xl font-semibold mb-6" style={{ fontFamily: 'Outfit, sans-serif' }}>
             Willkommen zurück
@@ -79,9 +82,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium mb-2" style={{ color: 'var(--muted)' }}>
-                BENUTZERNAME
-              </label>
+              <label className="block text-xs font-medium mb-2" style={{ color: 'var(--muted)' }}>BENUTZERNAME</label>
               <input
                 type="text"
                 value={username}
@@ -90,20 +91,14 @@ export default function LoginPage() {
                 autoComplete="username"
                 required
                 className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all"
-                style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid var(--border)',
-                  color: 'var(--text)',
-                }}
+                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)', color: 'var(--text)' }}
                 onFocus={e => e.target.style.borderColor = 'var(--accent)'}
                 onBlur={e => e.target.style.borderColor = 'var(--border)'}
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium mb-2" style={{ color: 'var(--muted)' }}>
-                PASSWORT
-              </label>
+              <label className="block text-xs font-medium mb-2" style={{ color: 'var(--muted)' }}>PASSWORT</label>
               <input
                 type="password"
                 value={password}
@@ -112,11 +107,7 @@ export default function LoginPage() {
                 autoComplete="current-password"
                 required
                 className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all"
-                style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid var(--border)',
-                  color: 'var(--text)',
-                }}
+                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)', color: 'var(--text)' }}
                 onFocus={e => e.target.style.borderColor = 'var(--accent)'}
                 onBlur={e => e.target.style.borderColor = 'var(--border)'}
               />
